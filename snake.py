@@ -184,45 +184,40 @@ class Snake:
                 break
         return canvas
 
+class Game:
+    gameloop = 0
+    def __init__(self, ip, port, x, y):
+        self.screen = Screen(ip, port, x, y)
+        self.canvas = Canvas(x, y)
+        self.snake = Snake(x, y)
+
+    def controller(self, event):
+        self.snake.control(event)
+
+    def loop(self):
+        self.snake.drawTo(self.canvas) 
+        self.screen.push(self.canvas.print())
+
+        self.gameloop = Timer(0.5, self.loop)
+        self.gameloop.start()
+
+    def stop(self):
+        self.gameloop.cancel()
 
 
 
 def main():
-    global gameloop
-    global screen
-    global canvas 
-    global snake
-
-    screen = Screen('10.14.10.15',1337,8,5)
-    canvas = Canvas(8, 5)
-    snake = Snake(8, 5)
-
-    snake.drawTo(canvas) 
-    screen.push(canvas.print())
-
-    loop()
+    game = Game('10.14.10.15',1337,8,5)
+    game.loop()
     
     root = Tk()
     frame = Frame(root, width=100, height=100)
     frame.focus_set()
-    frame.bind("<Key>", snake.control)
+    frame.bind("<Key>", game.controller)
     frame.pack()
     root.mainloop()
     
-    gameloop.cancel()
-
-        
-def loop():
-    global gameloop
-    global screen
-    global canvas 
-    global snake
-
-    snake.drawTo(canvas) 
-    screen.push(canvas.print())
-
-    gameloop = Timer(0.5, loop)
-    gameloop.start()
+    game.stop()
 
 if __name__ == "__main__":
     main()
