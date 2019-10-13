@@ -1,2 +1,3 @@
-# hs3diot
-h:s tricity iot groundoworks.
+# flashensnake
+
+Flashentashen protocol compatible snake game.
