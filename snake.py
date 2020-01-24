@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-ip = '10.14.10.28'
+ip = '10.14.10.25'
+ip1 = '10.14.10.67'
 
 import socket
 import random
@@ -14,38 +15,27 @@ class Screen:
 		#sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 		self.ip = ip
 		self.port = port
-		self.screen_width = x
-		self.screen_height = y
+		self.screen_x = x
+		self.screen_y = y
 		
-	def mock_display(self, data, frame):
-		string = ''
-		for row in range(self.screen_height):
-			for col in range(self.screen_width):
-				if(data[col][row] != [0,0,0]):
-					string += '#'
-				else:
-					string += '_'
-			string += '\n'
-		frame.set(string)
-
 	def screen_matrix_to_bytes(self, data):
 		result = bytearray()
-		for row in range(self.screen_height):
-			for col in range(self.screen_width):
+		for y in range(self.screen_y):
+			for x in range(self.screen_x):
 				for color in range(3):
-					result.append(data[col][row][color])
+					result.append(data[x][y][color])
 		return result
 	
 	def push(self, data):
-		header = b"P6\n%d %d\n255\n" % (self.screen_width, self.screen_height)
+		header = b"P6\n%d %d\n255\n" % (self.screen_x, self.screen_y)
 		b = self.screen_matrix_to_bytes(data)
 		self.screen.sendto(header + b, (self.ip, self.port))
 
 
 class Canvas:
 	def __init__(self, x,y):
-		self.canvas_width = x
-		self.canvas_height = y
+		self.canvas_x = x
+		self.canvas_y = y
 		self.body = [[3*[0] for _ in range(y)]  for _ in range(x)]
 
 
@@ -89,6 +79,7 @@ class Canvas:
 			bi = dx * 2
 			d = bi - dy
 			while (y != b[1]):
+
 				if (d >= 0):
 					x += xi
 					y += yi
@@ -119,12 +110,32 @@ class Canvas:
 		return color
 
 	def color(self, color):
-		for y in range(self.canvas_height):
-			for x in range(self.canvas_width):  
+		for y in range(self.canvas_y):
+			for x in range(self.canvas_x):  
 				self.body[x][y] = color
 
 	def clear(self):
 		self.color([0,0,0])
+
+	def printMock(self, frame):
+		string = ''
+		for y in range(self.canvas_y):
+			for x in range(self.canvas_x):
+				if(self.body[x][y] != [0,0,0]):
+					string += '#'
+				else:
+					string += '_'
+			string += '\n'
+		frame.set(string)
+
+
+	def printScreen(self, size_x, size_y, offset_x=0, offset_y=0):
+		returnBody = [[3*[0] for _ in range(size_y)]  for _ in range(size_x)]
+		for y in range(size_y):
+			for x in range(size_x):  
+				returnBody[x][y] = self.body[offset_x + x][offset_y + y]
+				
+		return returnBody
 
 	def print(self):
 		return self.body
@@ -158,10 +169,10 @@ class Snake:
 		if(self.direction == 's'):
 			self.body.insert(0, [self.body[0][0], (self.body[0][1]+1)%self.map_height])
 
-		if(self.direction == 'a'):
+		if(self.direction == 'd'):
 			self.body.insert(0, [(self.body[0][0]-1)%self.map_width, self.body[0][1]])
 
-		if(self.direction == 'd'):
+		if(self.direction == 'a'):
 			self.body.insert(0, [(self.body[0][0]+1)%self.map_width, self.body[0][1]])
 
 		rainbowstate = 0
@@ -189,8 +200,11 @@ class Snake:
 
 class Game:
 	gameloop = 0
-	def __init__(self, ip, port, x, y):
-		self.screen = Screen(ip, port, x, y)
+	def __init__(self, ip, ip1, port, x, y):
+		self.x = x
+		self.y = y
+		self.screen = Screen(ip, port, int(x/2), y)
+		self.screen1 = Screen(ip1, port, int(x/2), y)
 		self.canvas = Canvas(x, y)
 		self.snake = Snake(x, y)
 		
@@ -204,10 +218,9 @@ class Game:
 	def loop(self):
 		self.snake.drawTo(self.canvas) 
 
-		frame = self.canvas.print()
-
-		self.screen.push(frame)
-		self.screen.mock_display(frame, self.window)
+		self.screen.push(self.canvas.printScreen(int(self.x/2), self.y))
+		self.screen1.push(self.canvas.printScreen(int(self.x/2), self.y, int(self.x/2)))
+		self.canvas.printMock(self.window)
 		self.gameloop = Timer(0.5, self.loop)
 		self.gameloop.start()
 
@@ -217,7 +230,7 @@ class Game:
 
 
 def main():
-	game = Game(ip,1337,5,8)
+	game = Game(ip, ip1, 1337, 10, 8)
 	
 	root = Tk()
 	root.title("Snake")
