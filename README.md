@@ -1,3 +1,3 @@
 # flaschensnake
 
-Flashentashen protocol compatible snake game.
+Flaschentaschen protocol compatible snake game.
