@@ -6,7 +6,7 @@ ip1 = '10.14.10.67'
 import socket
 import random
 import time
-from tkinter import *
+from keyboard import _Getch
 from threading import Timer
 
 class Screen:
@@ -117,7 +117,7 @@ class Canvas:
 	def clear(self):
 		self.color([0,0,0])
 
-	def printMock(self, frame):
+	def printMock(self):
 		string = ''
 		for y in range(self.canvas_y):
 			for x in range(self.canvas_x):
@@ -125,8 +125,8 @@ class Canvas:
 					string += '#'
 				else:
 					string += '_'
-			string += '\n'
-		frame.set(string)
+			string += '\n\r'
+		return string
 
 
 	def printScreen(self, size_x, size_y, offset_x=0, offset_y=0):
@@ -157,8 +157,7 @@ class Snake:
 	def randomxy(self):
 		return [random.randint(0,self.map_width-1), random.randint(0,self.map_height-1)]
 
-	def control(self, event):
-		key = event.char
+	def control(self, key):
 		if(key == 'w' or key == 's' or key == 'a' or key == 'd'):
 			self.direction = key
 
@@ -169,10 +168,10 @@ class Snake:
 		if(self.direction == 's'):
 			self.body.insert(0, [self.body[0][0], (self.body[0][1]+1)%self.map_height])
 
-		if(self.direction == 'd'):
+		if(self.direction == 'a'):
 			self.body.insert(0, [(self.body[0][0]-1)%self.map_width, self.body[0][1]])
 
-		if(self.direction == 'a'):
+		if(self.direction == 'd'):
 			self.body.insert(0, [(self.body[0][0]+1)%self.map_width, self.body[0][1]])
 
 		rainbowstate = 0
@@ -209,18 +208,15 @@ class Game:
 		self.snake = Snake(x, y)
 		
 
-	def controller(self, event):
-		self.snake.control(event)
-
-	def setMockDisplay(self, window):
-		self.window = window
+	def controller(self, key):
+		self.snake.control(key)
 
 	def loop(self):
 		self.snake.drawTo(self.canvas) 
 
+		print(self.canvas.printMock())
 		self.screen.push(self.canvas.printScreen(int(self.x/2), self.y))
 		self.screen1.push(self.canvas.printScreen(int(self.x/2), self.y, int(self.x/2)))
-		self.canvas.printMock(self.window)
 		self.gameloop = Timer(0.5, self.loop)
 		self.gameloop.start()
 
@@ -230,21 +226,20 @@ class Game:
 
 
 def main():
-	game = Game(ip, ip1, 1337, 10, 8)
-	
-	root = Tk()
-	root.title("Snake")
-	frame = Frame(root)
-	frame.focus_set()
-	gameview = StringVar()
-	Label(root, textvariable=gameview, font="Monospace").pack()
+	getch = _Getch()
 
-	game.setMockDisplay(gameview)	
+	game = Game(ip, ip1, 1337, 10, 8)
+
 	game.loop()
 
-	frame.bind("<Key>", game.controller)
-	frame.pack()
-	root.mainloop()
+	while True:
+		
+		if(getch() == "q"):
+			break
+		
+		game.controller(getch())
+
+
 	game.stop()
 
 if __name__ == "__main__":
