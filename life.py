@@ -3,12 +3,11 @@
 Flaschentaschen Game of Life
 """
 
-
 __author__ = "Marcin Jasiukowicz"
 __version__ = "0.1.0"
 __license__ = "MIT"
 
-import flashentaschen
+import flaschentaschen
 import time
 from copy import deepcopy
 from tkinter import *
@@ -161,8 +160,8 @@ class Game:
 	def __init__(self, ip, port, x, y):
 		self.x = x
 		self.y = y
-		self.screen = flashentaschen.Screen(ip, port, x, y)
-		self.canvas = flashentaschen.Canvas(x, y)
+		self.screen = flaschentaschen.Screen(ip, port, x, y)
+		self.canvas = flaschentaschen.Canvas(x, y)
 		self.life = GameOfLife(x, y)
 		self.life.addGG(10, 10)
 
