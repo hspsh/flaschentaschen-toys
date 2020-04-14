@@ -1,3 +1,3 @@
-# flaschensnake
+# flaschentaschen
 
-Flaschentaschen protocol compatible snake game.
+Flaschentaschen protocol compatible toys.
