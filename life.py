@@ -9,8 +9,9 @@ __license__ = "MIT"
 
 import flaschentaschen
 import time
+import random
 from copy import deepcopy
-from tkinter import *
+from tkinter import Tk, Frame, Label, StringVar
 from threading import Timer
 
 class GameOfLife:
@@ -22,21 +23,21 @@ class GameOfLife:
 	def loop(self):
 		next_frame = deepcopy(self.board)
 	
-		for i, x in enumerate(self.board):
-			for j, y in enumerate(self.board[i]):
-				neighbours = self.checkNeighbours(i, j)
-				if self.board[i][j] == 1:
+		for x in range(len(self.board)):
+			for y in range(len(self.board[x])):
+				neighbours = self.checkNeighbours(x, y)
+				if self.board[x][y] == 1:
 					if neighbours > 3:
-						next_frame[i][j] = 0
+						next_frame[x][y] = 0
 					if(neighbours == 2):
-						next_frame[i][j] = 1
+						next_frame[x][y] = 1
 					if(neighbours == 3):
-						next_frame[i][j] = 1
+						next_frame[x][y] = 1
 					if neighbours < 2:
-						next_frame[i][j] = 0	
-				if self.board[i][j] == 0:
+						next_frame[x][y] = 0	
+				if self.board[x][y] == 0:
 					if(neighbours == 3):
-						next_frame[i][j] = 1
+						next_frame[x][y] = 1
 
 		self.board = next_frame
 	
@@ -63,10 +64,14 @@ class GameOfLife:
 	def drawTo(self, canvas):
 		self.loop()
 		canvas.clear()
-		for i, x in enumerate(self.board):
-			for j, y in enumerate(self.board[i]):
-				if self.board[i][j] == 1:
-					canvas.point([i,j])
+		for x in range(len(self.board)):
+			for y in range(len(self.board[x])):
+				if self.board[x][y] == 1:
+					canvas.point([x,y])
+
+	def addRandom(self, points):
+		for _ in range(points):
+			self.board[random.randint(0,self.width-1)][random.randint(0,self.height-1)] = 1
 
 	def addGlider(self, X=0, Y=0):
 		#     1
@@ -96,6 +101,17 @@ class GameOfLife:
 				[0, 1, 0]]
 		
 		self.drawShape(penta, X, Y)
+
+	def addPentomino(self, X=0, Y=0):
+		#   1 1
+		# 1 1
+		#   1
+		pentomino = [
+				[1, 0, 0],
+				[1, 1, 1],
+				[0, 1, 0]]
+		
+		self.drawShape(pentomino, X, Y)
 
 	def addGG(self, X=0, Y=0):
 		# ........................O...........
@@ -149,10 +165,11 @@ class GameOfLife:
 
 
 	def drawShape(self, shape, X=0, Y=0):
-		for i, x in enumerate(shape):
-			for j, y in enumerate(shape[i]):
-				if shape[i][j] == 1:
-					self.board[X + i][Y + j] = shape[i][j]
+
+		for x in range(len(shape)):
+			for y in range(len(shape[x])):
+				if shape[x][y] == 1:
+					self.board[X + x % self.width][Y + y % self.height] = shape[x][y]
 
 
 class Game:
@@ -163,7 +180,8 @@ class Game:
 		self.screen = flaschentaschen.Screen(ip, port, x, y)
 		self.canvas = flaschentaschen.Canvas(x, y)
 		self.life = GameOfLife(x, y)
-		self.life.addGG(10, 10)
+		#self.life.addRandom(int((x*y)/2))
+		self.life.addPentomino(int(x/2), int(y/2))
 
 	def setMockDisplay(self, window):
 		self.window = window
@@ -181,7 +199,7 @@ class Game:
 
 def main():
 
-	game = Game('10.14.10.25', 1337, 50, 50)
+	game = Game('10.14.10.25', 1337, 100, 50)
 
 	root = Tk()
 	root.title("Game of Life")

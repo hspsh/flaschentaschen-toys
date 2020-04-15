@@ -127,7 +127,7 @@ class Canvas:
 				if(self.body[x][y] != [0,0,0]):
 					string += '#'
 				else:
-					string += '_'
+					string += ' '
 			string += '\n'
 		frame.set(string)
 
