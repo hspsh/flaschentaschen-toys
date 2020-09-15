@@ -199,7 +199,7 @@ class Game:
 
 def main():
 
-	game = Game('10.14.10.25', 1337, 100, 50)
+    game = Game('10.8.0.159', 1337, 100, 50)
 
 	root = Tk()
 	root.title("Game of Life")

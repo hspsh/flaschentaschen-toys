@@ -8,8 +8,8 @@ __author__ = "Marcin Jasiukowicz"
 __version__ = "0.1.0"
 __license__ = "MIT"
 
-ip = '10.14.10.25'
-ip1 = '10.14.10.67'
+ip = '10.8.0.159'
+ip1 = '10.8.0.159'
 
 import flaschentaschen
 import socket
@@ -46,10 +46,10 @@ class Snake:
 		if(self.direction == 's'):
 			self.body.insert(0, [self.body[0][0], (self.body[0][1]+1)%self.map_height])
 
-		if(self.direction == 'd'):
+		if(self.direction == 'a'):
 			self.body.insert(0, [(self.body[0][0]-1)%self.map_width, self.body[0][1]])
 
-		if(self.direction == 'a'):
+		if(self.direction == 'd'):
 			self.body.insert(0, [(self.body[0][0]+1)%self.map_width, self.body[0][1]])
 
 		rainbowstate = 0
@@ -80,8 +80,8 @@ class Game:
 	def __init__(self, ip, ip1, port, x, y):
 		self.x = x
 		self.y = y
-		self.screen = flaschentaschen.Screen(ip, port, int(x/2), y)
-		self.screen1 = flaschentaschen.Screen(ip1, port, int(x/2), y)
+		self.screen = flaschentaschen.Screen(ip, port, x, y)
+		#self.screen1 = flaschentaschen.Screen(ip1, port, int(x/2), y)
 		self.canvas = flaschentaschen.Canvas(x, y)
 		self.snake = Snake(x, y)
 		
@@ -95,8 +95,8 @@ class Game:
 	def loop(self):
 		self.snake.drawTo(self.canvas) 
 
-		self.screen.push(self.canvas.printScreen(int(self.x/2), self.y))
-		self.screen1.push(self.canvas.printScreen(int(self.x/2), self.y, int(self.x/2)))
+		self.screen.push(self.canvas.printScreen(self.x, self.y))
+		#self.screen1.push(self.canvas.printScreen(int(self.x/2), self.y, int(self.x/2)))
 		self.canvas.printMock(self.window)
 		self.gameloop = Timer(0.5, self.loop)
 		self.gameloop.start()
@@ -107,7 +107,7 @@ class Game:
 
 
 def main():
-	game = Game(ip, ip1, 1337, 10, 8)
+	game = Game(ip, ip1, 1337, 8, 10)
 	
 	root = Tk()
 	root.title("Snake")
