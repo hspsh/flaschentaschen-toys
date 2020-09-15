@@ -99,18 +99,16 @@ class Canvas:
 
 	def rainbow(self, stage):
 		t = stage % 768
-		if(stage < 256):
-			color = [255-t,t,0]
+		if(t < 256):
+			return ([255-t,t,0])
 			
-		if(stage > 255 & stage < 512):
+		elif(t < 512):
 			t -= 256
-			color = [0,255-t,t]
+			return ([0,255-t,t])
 
-		if(stage > 511 & stage < 768):
-			t -= 256
-			color = [t,0,255-t] 
-
-		return color
+		else:
+			t -= 512
+			return ([t,0,255-t])
 
 	def color(self, color):
 		for y in range(self.canvas_y):
